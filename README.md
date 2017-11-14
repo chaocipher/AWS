@@ -3,13 +3,13 @@ Scripts to help with AWS work
 
 AutoUpdate_SGs_AWS_Public_Endpoints:
   This script runs in Lambda and autoupdates security groups (SG) to allow for egress to Amazon end point services. 
-  Just subscribe the SNS topic for AWS IP changes and have it trigger this code.
-  Since Amazon doesn't have SG's for all it's end points you have to maintain egree filtering to allow instances to 
-  communicate to them without have a 0.0.0.0/0 rule for egress. I grabbed some code from AWS website, but it was built
-  for ingress only and it didn't actually work since it created more than 50 rules in the SG. I added a region filter 
-  and adjusted the code to allow for egress. 
+  Just subscribe to the SNS topic for AWS IP range changes and have it trigger this code.
+  Since Amazon doesn't have SG's for all its end points you have to maintain egress filtering to allow instances to 
+  communicate to them without having a 0.0.0.0/0 rule for egress. I grabbed some code from the AWS website, but it 
+  was built for ingress only and it didn't actually work since it created more than 50 rules in the SG. 
+  I added a region filter and adjusted the code to allow for egress. 
   
-  Adjust the header section to fit your needs and prestage the SG's with the appropriate tagging. See below:
+  Adjust the header section to fit your needs and pre-stage the SG's with the appropriate tagging. See below:
   # Header
   # Name of the service, as seen in the ip-groups.json file, to extract information for
   SERVICE = "AMAZON"
