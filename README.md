@@ -1,7 +1,7 @@
 # AWS
-Scripts to help with AWS work
+Scripts and snippets to help with AWS work
 
-AutoUpdate_SGs_AWS_Public_Endpoints:
+# AutoUpdate_SGs_AWS_Public_Endpoints:
   This script runs in Lambda and autoupdates security groups (SG) to allow for egress to Amazon end point services. 
   Just subscribe to the SNS topic for AWS IP range changes and have it trigger this code.
   Since Amazon doesn't have SG's for all its end points you have to maintain egress filtering to allow instances to 
@@ -23,3 +23,8 @@ AutoUpdate_SGs_AWS_Public_Endpoints:
   # Tags which identify the security groups you want to update
   SECURITY_GROUP_TAG_FOR_HTTP = { 'Named-Service': 'AMAZON', 'AutoUpdate': 'True', 'Protocol': 'http' }
   SECURITY_GROUP_TAG_FOR_HTTPS = { 'Named-Service': 'AMAZON', 'AutoUpdate': 'True', 'Protocol': 'https' }
+
+
+# AWS IAM resources with an explicit deny:
+  This snippet shows a simple deny IAM roles policy. The example shows how to give a * rule to a group of commands and 
+  deny a single command out of the bundle. 
