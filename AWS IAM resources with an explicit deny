@@ -1,0 +1,25 @@
+{
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:Describe*",
+                "ec2:StartInstances",
+                "ec2:Copy*",
+                "workspaces:*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },{
+            
+            "Action": [
+                "workspaces:TerminateWorkspaces"
+
+            ],
+            "Effect": "Deny",
+            "Resource": "*"
+        }
+        
+    ]
+}
