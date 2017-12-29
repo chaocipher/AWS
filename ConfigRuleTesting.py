@@ -5,45 +5,66 @@ import urllib.request
 from botocore.exceptions import ClientError
 
 
-###################################################
-############### Documentation #####################
-###################################################
+# ##################################################
+# ############## Documentation #####################
+# ##################################################
 
-###################################################
+# ##################################################
 #  Credits:
-###################################################
+# ##################################################
 # Author: Josh Brown
 # Created: 2017 - Q4
 # Last Modified: 2017 - Q4
 # Sources:
 #   http://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_develop-rules_example-events.html
 #
+# This code was created to make a framework for capturing events from the Config service on AWS. The config service
+# has many rules that are maintained by AWS. The problem with these rules is that we can't take action on them or
+# white list objects that are known to be in a compliant state. One such example is that we have a couple buckets that
+# we want to have world read capability. The config rule and code that AWS provides says that any bucket that can be
+# read from the world is said to be non-compliant and shows that condition in the dashboard. There is no white listing
+# capability at this time. Reporting to and from the dashboard is just the tip of the iceberg. If you want to take some
+# kind of action on the resource you have to develop custom config rules. In this way you can create code that will
+# catch events and perform actions upon the resource, but then there become a maintenance issue with this code and a
+# lot of redundant code to support all the resource types that you might want to run code on. For these reasons I have
+# decided to create this handler for all events selected through a single config rule and a switch function will allow
+# me to take action by resource type. As an added bonus we can now put all the objects we care about into the same
+# config dashboard rather than jumping from one to another.
+# Just like with any code there are often items that the user should be able to change without going into the code. In
+# this case I have put some items in as parameters to be supplied by the Config Rule that calls the lambda code. In this
+# way we can bring in source and destination email addresses, region info, etc.
+
+#
 # List of functions:
 #   *human_clean_string_html(varString)
-#     This is a function I wrote to clean up the YAML noise of an invoking event so it can be sent in a email to a human.
+#     This is a function I wrote to clean up the YAML noise of an invoking event so it can be sent in a email to a
+#     human.
 #     Input is a YAML string and return an HTML page that can be injected into an email.
 #
-#   *func_place_config_eval(varResourceType,varResourceId,varComplianceType,varAnnotation,varConfigurationItemCaptureTime,varResultToken)
+#   *func_place_config_eval(varResourceType,varResourceId,varComplianceType,varAnnotation,\
+#          varConfigurationItemCaptureTime,varResultToken)
 #     This function puts the config evaluation into the dashboard for the Config Rules are of your AWS account.
 #     Takes in a bunch of parameters and puts them into the table of the rule.
 #
-#   *resourcetype_case_switcher(event)
-#     This is the big function that makes all the decisions. It takes in the event and searches for known AWS Resource types and will run
-#     code based on what the business rules are. This is where you can decide to suppress emails or allow them, delete instances for not
-#     having the correct tags, etc. At the bottom of the function and SES email is sent with information about the event and any custom
-#     info the developer wants to include. It also call the config dashboard function to update the dashboard with the results of the evaluation.
-#     Lastly, it returns the result to the lambda_handler function for logging purposes.
+# *resourcetype_case_switcher(event) This is the big function that makes all the decisions. Ideally, this is the only
+#     function that should have changes made to it. It takes in the event and searches for known AWS Resource types and
+#     will run code based on what the business rules are. This is where you can decide to suppress emails or allow them,
+#     delete instances for not having the correct tags, etc. At the bottom of the function and SES email is sent with
+#     information about the event and any custom info the developer wants to include. It also call the config dashboard
+#     function to update the dashboard with the results of the evaluation. Lastly, it returns the result to the
+#     lambda_handler function for logging purposes.
 #
 #   *send_email(SENDER, RECIPIENT, AWS_REGION, SUBJECT="Enter Subject Here", HTMLINJECTION="Nothing")
-#     Nothing too special here. This code is largely plagerized from the Internet, but I adjusted it to use only HTML instead of either text
-#     or HTML. It accepts standard info that you would expect and does print a success message in the logs if gets a success return from the SES
-#     service.
+#     Nothing too special here. This code is largely plagiarized from the Internet, but I adjusted it to use only HTML
+#     instead of either text or HTML. It accepts standard info that you would expect and does print a success message in
+#     the logs if gets a success return from the SES service.
 #
 #   *lambda_handler(event, context)
-#     THis is the main handler for the config events. It doesn't do anything more that print some things that are helpful for logging and calls
-#     the resourcetype_case_switcher function to process more in depth code about what we want to do with the event.
+#     THis is the main handler for the config events. It doesn't do anything more that print some things that are
+#     helpful for logging and calls the resourcetype_case_switcher function to process more in depth code about what we
+#     want to do with the event.
 #
-###################################################
+# ##################################################
 
 
 def human_clean_string_html(varString):
@@ -116,7 +137,8 @@ def resourcetype_case_switcher(event):
     varEmail_AllAlerts = rule_parameters[
         'Email_AllAlerts']  # Pull the Email_AllAlerts parameter from the config rule to set recipients.
     varEmail_SendingAccount = rule_parameters[
-        'Email_SendingAccount']  # Pull the Email_SendingAccount parameter from the config rule that will contain an authorized account in SES to send mail.
+        'Email_SendingAccount']  # Pull the Email_SendingAccount parameter from the config rule that will contain an
+    # authorized account in SES to send mail.
     AWS_REGION = rule_parameters['Email_SESRegion']  # Pull the SES region to send from using a config parameter.
     varConfigItemStatus = {1: "COMPLIANT", 2: "NON_COMPLIANT", 3: "NOT_APPLICABLE"}
     varReturnConfigItemStatus = varConfigItemStatus[
