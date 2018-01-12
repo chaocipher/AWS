@@ -31,12 +31,7 @@ from botocore.exceptions import ClientError
 # me to take action by resource type. As an added bonus we can now put all the objects we care about into the same
 # config dashboard rather than jumping from one to another.
 # Just like with any code there are often items that the user should be able to change without going into the code. In
-# this case I have put some items in as parameters to be supplied by the Config Rule that calls the lambda code. In this
-# way we can bring in source and destination email addresses, region info, etc.
-
-#
-# List of functions:
-#   *human_clean_string_html(varString)
+# this case I have put some items in as parameters to be supplied by the Config Rule that calls the lambda code. In thisqqqqqqq
 #     This is a function I wrote to clean up the YAML noise of an invoking event so it can be sent in a email to a
 #     human.
 #     Input is a YAML string and return an HTML page that can be injected into an email.
@@ -142,7 +137,9 @@ def resourcetype_case_switcher(event):
     AWS_REGION = rule_parameters['Email_SESRegion']  # Pull the SES region to send from using a config parameter.
     varConfigItemStatus = {1: "COMPLIANT", 2: "NON_COMPLIANT", 3: "NOT_APPLICABLE"}
     varReturnConfigItemStatus = varConfigItemStatus[
-        2]  # Assume that the status is bad unless we've said that it's good for sure.
+        2]  # Assume that the status is bad unless we've said that it's good for sure
+    varSendOrNotToSendEmail = True
+    varPlaceOrNotToPlaceConfigDashboardEntry = True
 
     result_token = "No token found."
     if "resultToken" in event:
@@ -187,9 +184,13 @@ def resourcetype_case_switcher(event):
     else:
         varAnnotation = "Testing compliance annotation field."
 
-    send_email(varEmail_SendingAccount, varEmail_AllAlerts, AWS_REGION, SUBJECT, HTMLINJECTION)
-    func_place_config_eval(resourceType, configuration_item["resourceId"], varReturnConfigItemStatus, varAnnotation,
-                           configuration_item["configurationItemCaptureTime"], result_token)
+    if varSendOrNotToSendEmail:
+        send_email(varEmail_SendingAccount, varEmail_AllAlerts, AWS_REGION, SUBJECT, HTMLINJECTION)
+
+    if varPlaceOrNotToPlaceConfigDashboardEntry:
+        func_place_config_eval(resourceType, configuration_item["resourceId"], varReturnConfigItemStatus, varAnnotation,
+                               configuration_item["configurationItemCaptureTime"], result_token)
+
     return varReturnConfigItemStatus
 
 
