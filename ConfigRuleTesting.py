@@ -25,7 +25,7 @@ from botocore.exceptions import ClientError
 # read from the world is said to be non-compliant and shows that condition in the dashboard. There is no white listing
 # capability at this time. Reporting to and from the dashboard is just the tip of the iceberg. If you want to take some
 # kind of action on the resource you have to develop custom config rules. In this way you can create code that will
-# catch events and perform actions upon the resource, but then there become a maintenance issue with this code and a
+# catch events and perform actions upon the resource, but then there becomes a maintenance issue with this code and a
 # lot of redundant code to support all the resource types that you might want to run code on. For these reasons I have
 # decided to create this handler for all events selected through a single config rule and a switch function will allow
 # me to take action by resource type. As an added bonus we can now put all the objects we care about into the same
